@@ -73,3 +73,15 @@ Esta versão é para uso local. Antes de exposição pública, adicione autentic
 - [Responses e Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs)
 - [Transcrição de áudio](https://developers.openai.com/api/docs/guides/speech-to-text)
 - [Geração de voz](https://developers.openai.com/api/docs/guides/text-to-speech)
+
+### Retomada das aulas
+
+Conversas e rascunhos ficam no navegador, separados por nível, tutor e atividade. Cada conversa mantém as últimas 60 mensagens, até ser apagada. O painel retoma a atividade incompleta usada mais recentemente. Ao concluir todas as atividades do nível, oferece revisão; isso não certifica fluência. Dentro da aula, **Apagar conversa** pede confirmação e preserva o progresso. Dados antigos são migrados sem perder preferências ou métricas.
+
+Verificações adicionais (Node 22.18+):
+
+```bash
+node scripts/check-sessions.mjs
+```
+
+Para testar a interface com respostas simuladas, use Playwright instalado separadamente (ou `PLAYWRIGHT_MODULE` apontando para seu módulo), inicie a aplicação na porta 3100 e rode `node scripts/check-lesson-flow.mjs`. Esse teste não chama a OpenAI nem comprova voz/pronúncia reais.
