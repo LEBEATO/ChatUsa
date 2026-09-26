@@ -27,8 +27,8 @@ export const lessons = {
 };
 export function lessonId(level: Level, index: number) { return `${level}:${index}`; }
 export const localRepository = {
-  load(): LocalData {
-    const raw = localStorage.getItem('chat-usa:v1');
+  load(key = 'chat-usa:v1'): LocalData {
+    const raw = localStorage.getItem(key);
     if (!raw) return structuredClone(defaults);
     const d = JSON.parse(raw);
     if (!d || !d.preferences || !['Emma', 'Ethan'].includes(d.preferences.tutor) || !levels.includes(d.preferences.level) || !goals.includes(d.preferences.goal) || typeof d.preferences.audio !== 'boolean' || typeof d.preferences.captions !== 'boolean' || typeof d.onboarded !== 'boolean' || !Number.isSafeInteger(d.progress?.exchanges) || d.progress.exchanges < 0 || !['completed', 'days', 'words'].every(k => Array.isArray(d.progress[k]) && d.progress[k].length <= 10000 && d.progress[k].every((v: unknown) => typeof v === 'string' && v.length < 100))) throw new Error('Dados locais inválidos.');
@@ -36,7 +36,7 @@ export const localRepository = {
     d.sessions = sanitizeSessions(d.sessions);
     return d;
   },
-  save(data: LocalData) { localStorage.setItem('chat-usa:v1', JSON.stringify(data)); },
+  save(data: LocalData, key = 'chat-usa:v1') { localStorage.setItem(key, JSON.stringify(data)); },
 };
 
 export function sessionId(level: Level, tutor: Tutor, index: number) { return `${level}:${tutor}:${index}`; }

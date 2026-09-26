@@ -50,7 +50,7 @@ O tutor recebe texto ou transcrição, **não o áudio original**. Portanto não
 
 `lib/learning.ts` contém os tipos, atividades e `localRepository`; `lib/client-store.ts` sincroniza o estado React com esse repositório. Esse limite permite trocar a persistência por outro adaptador no futuro, por exemplo Supabase, sem acoplar os componentes ao banco.
 
-Preferências e progresso ficam em `localStorage`, na chave versionada `chat-usa:v1`. Sem contas e sem sincronização entre dispositivos. Limpar o navegador apaga esses dados. Mensagens ficam somente na memória da aula e são descartadas ao sair; trocar tutor preserva o progresso, mas inicia outra conversa. Gravações não são armazenadas pelo app. Texto e áudio usados na IA são enviados à OpenAI e estão sujeitos às políticas do provedor. A conversa usa `store: false`.
+Preferências, progresso, mensagens e rascunhos ficam em `localStorage`: `chat-usa:v1` para exploração sem conta, e `chat-usa:v1:user:<id>` por conta. Não há sincronização entre dispositivos. Limpar os dados do site apaga essas informações. Conversas mantêm até 60 mensagens por tutor/nível/atividade e podem ser apagadas dentro da aula. Gravações não são armazenadas pelo app. Texto e áudio usados na IA são enviados à OpenAI; a conversa usa `store: false`.
 
 Métricas são contagens de ações: resposta praticada só após uma resposta válida da IA; palavra praticada só ao acertar o exercício escrito; dia de prática ao realizar uma dessas ações. Uma atividade pode ser marcada concluída depois de três respostas bem-sucedidas, uma vez por nível/atividade. Revisões aumentam a prática, mas não duplicam conclusões. Esses números não medem domínio, fluência ou pronúncia.
 
@@ -66,7 +66,7 @@ O projeto usa a fonte Geist local para não depender do Google Fonts durante o b
 
 As rotas ficam em `app/api/{status,chat,speech,transcribe}`. Chamadas reais à OpenAI só podem ser verificadas com credenciais. O ambiente de entrega não contém chave. Veja `docs/verification.md` para os testes executados e suas limitações.
 
-Esta versão é para uso local. Antes de exposição pública, adicione autenticação, cotas por usuário e limitação distribuída de requisições; a validação de origem não substitui esses controles. Não foi feito deploy nem envio ao GitHub.
+Antes de exposição pública, ative e valide a autenticação e as quotas descritas em `docs/auth-setup.md`, configure proteção do cadastro e orçamento do provedor. A validação de origem não substitui autenticação. As mudanças estão em revisão no GitHub; não foi feito deploy.
 
 ## Documentação do provedor consultada
 
@@ -85,3 +85,7 @@ node scripts/check-sessions.mjs
 ```
 
 Para testar a interface com respostas simuladas, use Playwright instalado separadamente (ou `PLAYWRIGHT_MODULE` apontando para seu módulo), inicie a aplicação na porta 3100 e rode `node scripts/check-lesson-flow.mjs`. Esse teste não chama a OpenAI nem comprova voz/pronúncia reais.
+
+### Login e proteção da IA
+
+Login/cadastro com Supabase e quota transacional estão preparados. Para ativar, siga [a configuração de autenticação](docs/auth-setup.md). A IA agora exige usuário autenticado e uma quota válida no banco. Sem Supabase ou sem a migração, chamadas pagas ficam bloqueadas. O histórico continua local e separado por conta; não há sincronização entre dispositivos. Use `npm run check:config` para conferir as variáveis sem imprimir segredos.

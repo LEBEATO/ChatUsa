@@ -26,3 +26,11 @@ stored = JSON.stringify({ ...data, sessions: { [key]: null } });
 assert.equal(localRepository.load().progress.completed.length, 3);
 assert.deepEqual(localRepository.load().sessions, {});
 console.log('PASS: migration, persistence, tutor isolation, resume, completion and corrupt-session recovery.');
+
+const values = new Map();
+globalThis.localStorage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+localRepository.save(data, 'chat-usa:v1:user:a');
+assert.equal(localRepository.load('chat-usa:v1:user:a').progress.completed.length, 3);
+assert.equal(localRepository.load('chat-usa:v1:user:b').progress.completed.length, 0);
+assert.equal(localRepository.load().progress.completed.length, 0);
+console.log('PASS: account storage does not expose another account or guest history.');
