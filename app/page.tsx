@@ -1,9 +1,7 @@
-
-
-export default function Home() {
-  return (
-   <main>
-    <h1>teste</h1>
-   </main>
-  );
-}
+import Link from 'next/link';
+import { Icon, Portrait } from '@/components/ui';
+export default function Home() { return <>
+  <section className="hero"><div className="hero-copy"><span className="tag"><span className="status-dot"/>Inglês americano. Conexões de verdade.</span><h1>Seu inglês começa<br/>com uma conversa.</h1><p>Menos medo de falar. Mais momentos de “eu consigo”. Aprenda no seu ritmo com um tutor de IA que conversa com você.</p><Link href="/comecar" className="button primary large">Começar a aprender<Icon name="arrow"/></Link><span className="hero-footnote"><Icon name="check" size={16}/>Do primeiro “hello” à sua próxima conquista.</span></div><div className="hero-visual"><Portrait tutor="Emma" className="hero-portrait"/><div className="portrait-label"><span className="status-dot"/><strong>Emma</strong><span>Tutora com IA</span></div><div className="speech-preview"><span className="preview-label">Uma conversa pode começar assim</span><p lang="en">“Hi! What would you like<br/>to talk about today?”</p><span>Oi! Sobre o que você gostaria de conversar hoje?</span><div className="waveform" aria-hidden="true">{Array.from({ length: 24 }, (_, i) => <i key={i} style={{ height: `${8 + (i * 7 % 23)}px` }}/>)}</div></div><span className="portrait-disclosure">Personagem e retrato criados com IA</span></div></section>
+  <section id="como-funciona" className="how-section"><div><span className="section-kicker">Da sua rotina para a conversa</span><h2>Inglês para viver.<br/>Não só para decorar.</h2></div><div className="feature"><Icon name="chat" size={25}/><h3>Converse de verdade</h3><p>Peça um café, prepare uma viagem ou compartilhe uma ideia.</p></div><div className="feature"><Icon name="headphones" size={25}/><h3>Escute. Tente. Repita.</h3><p>Pratique escrita, compreensão e os sons do inglês americano.</p></div><div className="feature"><Icon name="spark" size={25}/><h3>No seu ritmo</h3><p>Explicações claras e um ponto de cada vez, do básico ao avançado.</p></div></section>
+  <section id="tutores" className="landing-tutors"><div><span className="section-kicker">Uma presença familiar em cada aula</span><h2>Conheça sua próxima<br/>companhia de conversa.</h2><p>Emma ou Ethan: escolha quem vai acompanhar você. Troque quando quiser, sem perder seu progresso.</p><Link className="text-link" href="/comecar">Escolher meu tutor <Icon name="arrow" size={18}/></Link></div>{(['Emma', 'Ethan'] as const).map(t => <article key={t} className="landing-tutor"><Portrait tutor={t}/><div><h3>{t}</h3><span>Tutor virtual com IA · Voz americana</span></div></article>)}</section><footer className="landing-footer"><span>CHAT USA · Seu inglês ganha voz.</span><span>Feito para brasileiros. Uma conversa por vez.</span></footer>
+</>; }
