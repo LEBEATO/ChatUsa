@@ -5,8 +5,9 @@ export type Tutor = 'Emma' | 'Ethan';
 export type Preferences = { tutor: Tutor; level: Level; goal: typeof goals[number]; audio: boolean; captions: boolean };
 export type Message = { role: 'user' | 'assistant'; content: string; feedback?: string; meaning?: string; word?: string };
 export type Progress = { exchanges: number; completed: string[]; days: string[]; words: string[] };
-export type LocalData = { preferences: Preferences; progress: Progress; onboarded: boolean };
-export const defaults: LocalData = { preferences: { tutor: 'Emma', level: 'Iniciante', goal: 'Viagens', audio: true, captions: true }, progress: { exchanges: 0, completed: [], days: [], words: [] }, onboarded: false };
+export type LessonSession = { messages: Message[]; draft: string; updatedAt: number };
+export type LocalData = { preferences: Preferences; progress: Progress; onboarded: boolean; sessions: Record<string, LessonSession> };
+export const defaults: LocalData = { preferences: { tutor: 'Emma', level: 'Iniciante', goal: 'Viagens', audio: true, captions: true }, progress: { exchanges: 0, completed: [], days: [], words: [] }, onboarded: false, sessions: {} };
 export const lessons = {
   Iniciante: [
     { title: 'Um café, por favor', subtitle: 'Suas primeiras palavras e pedidos', word: 'coffee', meaning: 'café', phrase: 'Coffee, please.', translation: 'Café, por favor.' },
@@ -26,12 +27,36 @@ export const lessons = {
 };
 export function lessonId(level: Level, index: number) { return `${level}:${index}`; }
 export const localRepository = {
-  load(): LocalData {
-    const raw = localStorage.getItem('chat-usa:v1');
+  load(key = 'chat-usa:v1'): LocalData {
+    const raw = localStorage.getItem(key);
     if (!raw) return structuredClone(defaults);
     const d = JSON.parse(raw);
     if (!d || !d.preferences || !['Emma', 'Ethan'].includes(d.preferences.tutor) || !levels.includes(d.preferences.level) || !goals.includes(d.preferences.goal) || typeof d.preferences.audio !== 'boolean' || typeof d.preferences.captions !== 'boolean' || typeof d.onboarded !== 'boolean' || !Number.isSafeInteger(d.progress?.exchanges) || d.progress.exchanges < 0 || !['completed', 'days', 'words'].every(k => Array.isArray(d.progress[k]) && d.progress[k].length <= 10000 && d.progress[k].every((v: unknown) => typeof v === 'string' && v.length < 100))) throw new Error('Dados locais inválidos.');
+    // Migrate existing installations; invalid conversations never erase progress.
+    d.sessions = sanitizeSessions(d.sessions);
     return d;
   },
-  save(data: LocalData) { localStorage.setItem('chat-usa:v1', JSON.stringify(data)); },
+  save(data: LocalData, key = 'chat-usa:v1') { localStorage.setItem(key, JSON.stringify(data)); },
 };
+
+export function sessionId(level: Level, tutor: Tutor, index: number) { return `${level}:${tutor}:${index}`; }
+export function sanitizeSessions(value: unknown): Record<string, LessonSession> {
+  const result: Record<string, LessonSession> = {};
+  if (!value || typeof value !== 'object') return result;
+  for (const level of levels) for (const tutor of ['Emma', 'Ethan'] as const) {
+    lessons[level].forEach((_, index) => {
+      const key = sessionId(level, tutor, index);
+      const session = (value as Record<string, LessonSession>)[key];
+      if (!session || typeof session.draft !== 'string' || session.draft.length > 2000 || !Number.isFinite(session.updatedAt) || !Array.isArray(session.messages) || session.messages.length > 60) return;
+      if (!session.messages.every(m => m && ['user', 'assistant'].includes(m.role) && typeof m.content === 'string' && m.content.length <= 8000 && ['feedback', 'meaning', 'word'].every(field => { const v = m[field as keyof Message]; return v === undefined || (typeof v === 'string' && v.length <= 8000); }))) return;
+      result[key] = { messages: session.messages.map(({ role, content, feedback, meaning, word }) => ({ role, content, feedback, meaning, word })), draft: session.draft, updatedAt: session.updatedAt };
+    });
+  }
+  return result;
+}
+export function nextActivity(data: LocalData) {
+  const { level, tutor } = data.preferences;
+  const remaining = lessons[level].map((_, i) => i).filter(i => !data.progress.completed.includes(lessonId(level, i)));
+  const resumed = remaining.filter(i => { const s = data.sessions[sessionId(level, tutor, i)]; return s && (s.messages.length || s.draft); }).sort((a, b) => data.sessions[sessionId(level, tutor, b)].updatedAt - data.sessions[sessionId(level, tutor, a)].updatedAt);
+  return { index: resumed[0] ?? remaining[0] ?? 0, resume: resumed.length > 0, finished: remaining.length === 0 };
+}

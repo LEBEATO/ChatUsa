@@ -54,3 +54,21 @@ O teste de navegador usa uma sessão de automação própria e limpa o armazenam
 Não há `.env.local` no projeto e o endpoint de status confirmou IA não configurada. Falta definir OPENAI_API_KEY com saldo/cota e acesso aos modelos da `.env.example`. Permanecem sem validação real: respostas do tutor, tradução/feedback gerados, síntese de voz, transcrição de microfone físico e conclusão de atividade após três respostas reais. O foco pós-transcrição e o tratamento de erro do gravador foram revisados em código; não houve captura física para exercitá-los. Nenhuma resposta de IA simulada foi adicionada ao produto.
 
 Preferências e progresso são locais, sem contas ou sincronização entre dispositivos. O app não avalia pronúncia a partir do áudio original. Nenhum push, deploy ou alteração de credenciais foi realizado.
+
+## Continuação — retomada das aulas (2026-09-26)
+
+- `npm run lint`, `npx tsc --noEmit`, `npm run build`: passaram.
+- `node scripts/check-sessions.mjs`: passaram migração de dados antigos, persistência, isolamento por tutor, retomada, nível concluído e descarte de conversa inválida sem apagar progresso.
+- `node scripts/check-api.mjs` contra servidor de produção local: passaram validação de entradas, limites, origem, WAV e mensagens de configuração pendente. Nenhuma chamada paga.
+- `scripts/check-lesson-flow.mjs`: cenário preparado para mensagens simuladas, recarregamento, conclusão, exclusão e tamanhos de tela. **Execução visual pendente**: agent-browser falhou ao iniciar o daemon; download do Chromium pelo Playwright retornou arquivo inválido neste ambiente. As evidências anteriores não comprovam esta nova interface.
+- Voz, transcrição e respostas reais continuam pendentes de credencial e crédito. Login e limites de uso permanecem necessários antes de disponibilização pública.
+
+## Continuação — autenticação e quotas (2026-09-26)
+
+- Adicionados Supabase Auth (e-mail/senha), sessão apenas no servidor, cookies HttpOnly, bloqueio das chamadas pagas sem conta e quota transacional.
+- Build/TypeScript e lint passaram. `scripts/check-auth.mjs` passou com configuração ausente e valores fictícios: cache privado, validação de origem, entradas inválidas, bloqueio de conversa/voz sem conta. Não testou credenciais reais.
+- `scripts/check-sessions.mjs` passou, incluindo separação de armazenamento por conta.
+- `scripts/check-quota.mjs` passou em PGlite descartável: limite por minuto/dia, reinício dos períodos, isolamento por usuário, negação de escrita direta e acesso anônimo. Isso não substitui teste no Supabase real nem advisors do projeto.
+- `npm run check:config` identificou as três variáveis ausentes sem imprimir segredos.
+- Pendente: criar/selecionar projeto Supabase exclusivo, executar migração e advisors, configurar confirmação/SMTP, validar cadastro/login/saída e sessão real, adicionar chave OpenAI e testar texto/voz/transcrição reais. A integração não está ativada.
+- Verificação visual permanece pendente: nova tentativa de obter Chromium headless também retornou arquivo inválido. Sem deploy ou merge em main.

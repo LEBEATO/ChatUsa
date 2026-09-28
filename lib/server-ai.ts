@@ -1,4 +1,5 @@
 import 'server-only';
+import { requireAiAccess } from './ai-access';
 
 export class ApiError extends Error { constructor(message: string, public status = 400) { super(message); } }
 export function configured() { const key = process.env.OPENAI_API_KEY; return !!key && !key.includes('your-') && !key.includes('sua-chave'); }
@@ -20,6 +21,7 @@ export async function readJson(request: Request) {
 }
 export async function openai(path: string, body: object | FormData) {
   if (!configured()) throw new ApiError('IA com configuração pendente. Configure OPENAI_API_KEY no servidor para conversar e ouvir os tutores.', 503);
+  await requireAiAccess();
   const form = body instanceof FormData;
   const response = await fetch(`https://api.openai.com/v1/${path}`, { method: 'POST', headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}`, ...(!form ? { 'Content-Type': 'application/json' } : {}) }, body: form ? body : JSON.stringify(body), signal: AbortSignal.timeout(45000), cache: 'no-store' });
   if (!response.ok) throw new ApiError(response.status === 429 ? 'O serviço de IA atingiu seu limite. Tente novamente mais tarde.' : 'Não foi possível acessar a IA. Confira a chave, os modelos e a conexão do servidor.', response.status === 429 ? 429 : 502);

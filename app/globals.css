@@ -58,3 +58,7 @@ h1, h2, h3 { text-wrap:balance; }
 .message p, .translation, .feedback p { overflow-wrap:anywhere; }
 @media(max-width:900px) { .tutor-panel .ai-disclosure { display:block; grid-column:1 / -1; padding:12px 18px; font-size:12px; } }
 @media(max-width:700px) { .composer-note { font-size:12px; } .mic-button { font-size:12px; min-height:44px; } .practice-tools button { font-size:12px; min-height:44px; } }
+
+.conversation-privacy{font-size:.75rem;color:var(--muted);padding:0 1.25rem;line-height:1.6}.clear-conversation{padding:1rem;border:1px solid #766394;border-radius:12px;margin:0 1rem}.clear-conversation button{margin:.25rem}.lesson-completion{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem;border:1px solid #766394;border-radius:16px;margin-bottom:1.5rem}.lesson-completion p{margin:.5rem 0;line-height:1.6}.lesson-completion a{flex-shrink:0}@media(max-width:700px){.lesson-completion{flex-direction:column;align-items:flex-start}.conversation-top{gap:.5rem;flex-wrap:wrap}}
+
+.auth-form{display:grid;gap:.85rem;max-width:440px;margin:2rem 0}.auth-form input{width:100%;min-width:0;border:1px solid #655c78;border-radius:10px;padding:.85rem;background:#17121f;color:#fff;font:inherit}.auth-form input:focus-visible{outline:2px solid #b994ff;outline-offset:3px}.account-link{margin:1rem 0}.account-link button{width:100%}
